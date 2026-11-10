@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NashOnline - Portal Berita Keislaman</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#008b74', 
+                        'primary-dark': '#006d5b',
+                        'bg-gray': '#f8f9fa',
+                        'text-dark': '#1a1a1a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f3f4f6;
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+        .dashed-divider {
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        .section-title-underline {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+        .section-title-underline::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 3px;
+            background-color: #008b74;
+            border-radius: 2px;
+        }
+        .section-title-dots::after {
+            content: '•••';
+            position: absolute;
+            bottom: -8px;
+            left: 35px;
+            color: #d1d5db;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+        
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Detail Article specific styles */
+        .article-content p {
+            margin-bottom: 1.25rem;
+            line-height: 1.7;
+            font-size: 1.05rem;
+            color: #374151;
+        }
+
+        /* Prevent scroll class for body */
+        .no-scroll {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+<!-- Data Default Fallback (Akan ditimpa jika data.json berhasil dimuat) -->
+<script id="default-data" type="application/json">
+{
+  "articles": [
+    {
+      "id": 1, "category": "Hikmah", "title": "Jangan Jadi Penguasa yang Tak Mau Mendengar Rakyat",
+      "excerpt": "Kekuasaan hadir untuk memastikan setiap warga memperoleh perlindungan, pelayanan, dan keadilan.",
+      "content": "<p><i>\"Setiap orang berhak atas pengakuan, jaminan, perlindungan...\"</i></p><p>Demikian amanat Pasal 28D UUD 1945. Kekuasaan hadir untuk memastikan setiap warga memperoleh perlindungan.</p>",
+      "date": "Selasa, 10 November 2026 | 20:31 WIB", "author": "Shofi Mustajibullah", "authorRole": "Kolumnis",
+      "authorAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150&h=150",
+      "image": "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&q=80&w=800&h=500",
+      "caption": "Ilustrasi pemimpin (NashOnline)", "tags": ["Pemerintahan"]
+    },
+    {
+      "id": 2, "category": "Nasional", "title": "Ditetapkan Pahlawan Nasional, Ini Peran KH Abbas Buntet",
+      "excerpt": "KH Abbas Abdul Jamil dianugerahi Pahlawan Nasional 2026.",
+      "content": "<p>Jakarta, NashOnline - Pemerintah menetapkan KH Abbas Abdul Jamil sebagai Pahlawan Nasional.</p>",
+      "date": "Selasa, 10 November 2026 | 22:00 WIB", "author": "Ahmad Muzakki", "authorRole": "Jurnalis",
+      "authorAvatar": "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=150&h=150",
+      "image": "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&q=80&w=800&h=500",
+      "caption": "Potret Ulama (Arsip Sejarah Nasional)", "tags": ["Pahlawan"]
+    }
+  ],
+  "home": {
+    "heroArticleId": 2, "feedArticleIds": [1],
+    "terpopuler": [{"title": "Berita Populer Default 1"}],
+    "terkiniIds": [1, 2],
+    "rekomendasi": [{"title": "Rekomendasi Default 1"}]
+  }
+}
+</script>
+
+<div class="app-container" id="app">
+
+    <!-- HEADER (Sticky) -->
+    <header class="fixed top-0 w-full max-w-[480px] bg-white border-b border-gray-200 z-30 flex items-center justify-between px-4 py-3 h-14">
+        <!-- Hamburger Menu Button -->
+        <button id="btn-menu" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+        
+        <!-- Logo -->
+        <div class="flex items-center justify-center cursor-pointer" onclick="goHome()">
+            <span class="text-2xl tracking-tighter text-teal-900 font-extrabold flex items-center">
+                nash<i class="fa-solid fa-circle-play text-primary mx-0.5 text-lg"></i><span class="font-normal text-teal-800">nline</span>
+            </span>
+        </div>
+
+        <!-- Search Button -->
+        <button id="btn-search" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fa-solid fa-magnifying-glass text-lg"></i>
+        </button>
+    </header>
+
+    <!-- SEARCH OVERLAY -->
+    <div id="search-overlay" class="fixed top-14 w-full max-w-[480px] bg-white shadow-md z-20 transform -translate-y-full transition-transform duration-300 px-4 py-3 border-b border-gray-200">
+        <div class="relative">
+            <input type="text" id="search-input" placeholder="Cari berita..." class="w-full bg-gray-100 border-none rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+            <button id="btn-close-search" class="absolute right-3 top-2 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <div id="search-results" class="mt-4 max-h-64 overflow-y-auto hidden">
+            <!-- Search results rendered here -->
+        </div>
+    </div>
+
+    <!-- HAMBURGER MENU OVERLAY -->
+    <div id="menu-backdrop" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-opacity"></div>
+    <div id="side-menu" class="fixed top-0 left-0 h-full w-64 bg-white z-50 transform -translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+            <span class="text-xl tracking-tighter text-teal-900 font-extrabold flex items-center">
+                nash<i class="fa-solid fa-circle-play text-primary mx-0.5 text-sm"></i><span class="font-normal text-teal-800">nline</span>
+            </span>
+            <button id="btn-close-menu" class="text-gray-500 text-xl"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="p-4 overflow-y-auto flex-1">
+            <ul class="space-y-4 font-semibold text-gray-700">
+                <li><a href="#" onclick="goHome()" class="hover:text-primary block"><i class="fa-solid fa-house w-6 text-gray-400"></i> Beranda</a></li>
+                <li><a href="#" class="hover:text-primary block"><i class="fa-solid fa-newspaper w-6 text-gray-400"></i> Nasional</a></li>
+                <li><a href="#" class="hover:text-primary block"><i class="fa-solid fa-globe w-6 text-gray-400"></i> Internasional</a></li>
+                <li><a href="#" class="hover:text-primary block"><i class="fa-solid fa-scale-balanced w-6 text-gray-400"></i> Syariah</a></li>
+                <li><a href="#" class="hover:text-primary block"><i class="fa-solid fa-heart w-6 text-gray-400"></i> Hikmah</a></li>
+                <li><a href="#" class="hover:text-primary block"><i class="fa-solid fa-pen-nib w-6 text-gray-400"></i> Opini</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- WRAPPER (For blur effect when menu opens) -->
+    <div id="main-wrapper" class="transition-all duration-300 pt-14 pb-10 min-h-screen bg-white">
+        
+        <!-- HOME VIEW -->
+        <main id="home-view">
+            <!-- Rendered by JS -->
+        </main>
+
+        <!-- ARTICLE DETAIL VIEW (Hidden by default) -->
+        <main id="detail-view" class="hidden animate-fade-in bg-white min-h-screen">
+            <!-- Article header -->
+            <div class="px-4 py-4">
+                <h1 id="detail-title" class="text-2xl font-bold leading-tight mb-3 text-gray-900"></h1>
+                <div class="flex items-center justify-center text-xs text-gray-500 space-x-1 mb-4">
+                    <span class="font-semibold text-primary">Nash Online</span>
+                    <span>&bull;</span>
+                    <span id="detail-date"></span>
+                </div>
+            </div>
+
+            <!-- Article Image -->
+            <div class="w-full relative">
+                <img id="detail-image" src="" alt="Thumbnail" class="w-full h-auto object-cover bg-gray-200">
+                <p id="detail-caption" class="text-[10px] text-gray-500 italic mt-1 px-4 text-center"></p>
+            </div>
+
+            <!-- Author Info -->
+            <div class="px-4 py-4 flex items-center border-b border-gray-100 mb-4">
+                <img id="detail-author-avatar" src="" class="w-10 h-10 rounded-full object-cover mr-3 bg-gray-200" alt="Author">
+                <div>
+                    <h4 id="detail-author-name" class="font-bold text-sm text-gray-900 leading-none mb-1"></h4>
+                    <p id="detail-author-role" class="text-xs text-gray-500"></p>
+                </div>
+            </div>
+
+            <!-- Share Buttons -->
+            <div class="px-4 mb-6 flex gap-2">
+                <button class="w-10 h-10 rounded-full border border-gray-200 text-[#1DA1F2] hover:bg-gray-50 flex items-center justify-center"><i class="fa-brands fa-twitter"></i></button>
+                <button class="w-10 h-10 rounded-full border border-gray-200 text-[#4267B2] hover:bg-gray-50 flex items-center justify-center"><i class="fa-brands fa-facebook-f"></i></button>
+                <button class="w-10 h-10 rounded-full border border-gray-200 text-[#25D366] hover:bg-gray-50 flex items-center justify-center"><i class="fa-brands fa-whatsapp"></i></button>
+                <button class="w-10 h-10 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center"><i class="fa-solid fa-link"></i></button>
+                <button class="w-10 h-10 rounded-full bg-primary text-white hover:bg-primary-dark flex items-center justify-center"><i class="fa-solid fa-print"></i></button>
+            </div>
+
+            <!-- Article Content -->
+            <div id="detail-content" class="px-4 article-content">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Terkait / Related Section -->
+            <section class="px-4 py-6 mt-8 border-t-[8px] border-gray-100">
+                <h2 class="text-lg font-bold text-gray-900 mb-4 section-title-underline section-title-dots">Terkait</h2>
+                <div id="detail-related">
+                    <!-- Injected via JS -->
+                </div>
+            </section>
+            
+            <section class="px-4 py-4 mt-2">
+                <h2 class="text-lg font-bold text-gray-900 mb-4 section-title-underline">Terpopuler</h2>
+                <div id="detail-popular" class="flex flex-col">
+                    <!-- Injected via JS -->
+                </div>
+            </section>
+        </main>
+        
+        <!-- FOOTER (Appears on both views) -->
+        <footer class="bg-[#f2f4f6] pt-10 pb-6 border-t border-gray-200 mt-6">
+            <!-- App Stores (Footer) -->
+            <div class="flex flex-col items-center justify-center mb-8">
+                <span class="text-3xl tracking-tighter text-teal-900 font-extrabold flex items-center mb-4 opacity-80">
+                    nash<i class="fa-solid fa-circle-play text-primary mx-0.5 text-xl"></i><span class="font-normal text-teal-800">nline</span>
+                </span>
+                <div class="flex justify-center gap-3">
+                    <img src="https://placehold.co/130x42/000000/ffffff?text=App+Store" alt="App Store" class="h-9 rounded cursor-pointer">
+                    <img src="https://placehold.co/130x42/000000/ffffff?text=Google+Play" alt="Google Play" class="h-9 rounded cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Copyright & Socials -->
+            <div class="bg-[#e2e6eb] py-5 flex flex-col items-center justify-center border-t border-gray-300 px-4 text-center">
+                <p class="text-xs text-gray-600 mb-4">© 2026 NashOnline | Portal Berita Islam. Hak cipta dilindungi.</p>
+                <div class="flex gap-2.5">
+                    <a href="#" class="w-7 h-7 bg-[#3b5998] text-white rounded flex items-center justify-center hover:opacity-80 transition"><i class="fa-brands fa-facebook-f text-sm"></i></a>
+                    <a href="#" class="w-7 h-7 bg-black text-white rounded flex items-center justify-center hover:opacity-80 transition"><i class="fa-brands fa-x-twitter text-sm"></i></a>
+                    <a href="#" class="w-7 h-7 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white rounded flex items-center justify-center hover:opacity-80 transition"><i class="fa-brands fa-instagram text-sm"></i></a>
+                    <a href="#" class="w-7 h-7 bg-[#ff0000] text-white rounded flex items-center justify-center hover:opacity-80 transition"><i class="fa-brands fa-youtube text-sm"></i></a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+</div>
+
+<script>
+    // App State
+    let appData = {};
+    
+    // Elements
+    const views = {
+        home: document.getElementById('home-view'),
+        detail: document.getElementById('detail-view')
+    };
+    
+    const ui = {
+        btnMenu: document.getElementById('btn-menu'),
+        btnCloseMenu: document.getElementById('btn-close-menu'),
+        sideMenu: document.getElementById('side-menu'),
+        menuBackdrop: document.getElementById('menu-backdrop'),
+        mainWrapper: document.getElementById('main-wrapper'),
+        btnSearch: document.getElementById('btn-search'),
+        btnCloseSearch: document.getElementById('btn-close-search'),
+        searchOverlay: document.getElementById('search-overlay'),
+        searchInput: document.getElementById('search-input'),
+        searchResults: document.getElementById('search-results')
+    };
+
+    // Initialize App
+    async function init() {
+        // Load default data first
+        try {
+            appData = JSON.parse(document.getElementById('default-data').textContent);
+        } catch(e) { console.error("Default data error", e); }
+        
+        // Attempt to fetch fresh data.json
+        try {
+            const res = await fetch('data.json');
+            if(res.ok) {
+                const fetchedData = await res.json();
+                appData = fetchedData;
+            }
+        } catch(e) {
+            console.log("Using default fallback data (no data.json found).");
+        }
+
+        renderHome();
+        setupEvents();
+    }
+
+    // Render Home Page
+    function renderHome() {
+        if(!appData.articles) return;
+        
+        let html = '';
+        
+        // 1. Hero Article
+        const hero = appData.articles.find(a => a.id === appData.home.heroArticleId) || appData.articles[0];
+        html += `
+            <article class="px-4 py-4 dashed-divider cursor-pointer" onclick="openArticle(${hero.id})">
+                <div class="relative mb-3">
+                    <img src="${hero.image}" alt="${hero.title}" class="w-full h-auto object-cover rounded-sm aspect-[4/3] bg-gray-200">
+                    <span class="absolute top-2 left-2 bg-primary text-white text-[11px] font-medium px-2 py-0.5 rounded-sm">${hero.category}</span>
+                </div>
+                <h1 class="text-xl font-bold leading-tight mb-2 text-gray-900">${hero.title}</h1>
+                <p class="text-gray-600 text-sm mb-3 line-clamp-3">${hero.excerpt}</p>
+                <div class="text-xs text-gray-400">${hero.date}</div>
+            </article>
+        `;
+
+        // 2. Feed Articles
+        html += `<div class="px-4">`;
+        appData.home.feedArticleIds.forEach(id => {
+            const art = appData.articles.find(a => a.id === id);
+            if(art) html += createCardHtml(art);
+        });
+        html += `</div>`;
+
+        // 3. Terpopuler
+        html += `
+        <section class="px-4 py-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4 section-title-underline">Terpopuler</h2>
+            <div class="flex flex-col">
+        `;
+        appData.home.terpopuler.forEach((item, index) => {
+            html += `
+                <div class="flex gap-3 py-3 dashed-divider items-start cursor-pointer hover:bg-gray-50" onclick="alert('Ini contoh tautan statis')">
+                    <span class="text-primary text-xl font-bold italic w-5 flex-shrink-0 mt-0.5">${index + 1}</span>
+                    <h3 class="text-[15px] font-semibold text-gray-900 leading-snug">${item.title}</h3>
+                </div>`;
+        });
+        html += `</div></section>`;
+
+        // 4. Terkini
+        html += `
+        <section class="px-4 pt-2 pb-4">
+            <div class="flex justify-between items-end mb-4 border-b border-gray-200 pb-2">
+                <h2 class="text-lg font-bold text-gray-900 section-title-underline section-title-dots">Berita Terkini</h2>
+            </div>
+            <div class="flex flex-col">
+        `;
+        appData.home.terkiniIds.forEach(id => {
+            const art = appData.articles.find(a => a.id === id);
+            if(art) html += createCardHtml(art);
+        });
+        html += `</div></section>`;
+        
+        // 5. Rekomendasi
+        html += `
+        <section class="bg-blue-50/50 px-4 py-6 my-4 border-y border-gray-100">
+            <h2 class="text-base font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Rekomendasi</h2>
+            <div class="flex flex-col space-y-4">
+        `;
+        appData.home.rekomendasi.forEach((item, index) => {
+            html += `
+                <div class="flex gap-3 items-start cursor-pointer">
+                    <span class="text-primary text-lg font-bold italic mt-0.5">${index + 1}</span>
+                    <h3 class="text-[14px] font-semibold text-teal-900 leading-snug">${item.title}</h3>
+                </div>`;
+        });
+        html += `</div></section>`;
+
+        views.home.innerHTML = html;
+        views.home.classList.remove('hidden');
+        views.detail.classList.add('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    // Article Card Template
+    function createCardHtml(article) {
+        return `
+            <article class="flex justify-between gap-4 py-4 dashed-divider cursor-pointer group" onclick="openArticle(${article.id})">
+                <div class="flex-1 flex flex-col justify-between">
+                    <div>
+                        <span class="inline-block bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-sm mb-1.5">${article.category}</span>
+                        <h2 class="text-sm font-bold text-gray-900 leading-tight mb-2 line-clamp-3 group-hover:text-primary transition">${article.title}</h2>
+                    </div>
+                    <div class="text-[11px] text-gray-400">${article.date.split('|')[0]}</div>
+                </div>
+                <img src="${article.image}" alt="Thumbnail" class="w-20 h-20 object-cover rounded bg-gray-200 flex-shrink-0">
+            </article>
+        `;
+    }
+
+    // Open Article Detail (SPA logic)
+    function openArticle(id) {
+        const art = appData.articles.find(a => a.id === id);
+        if(!art) return;
+
+        // Populate details
+        document.getElementById('detail-title').innerText = art.title;
+        document.getElementById('detail-date').innerText = art.date;
+        document.getElementById('detail-image').src = art.image;
+        document.getElementById('detail-caption').innerText = art.caption || '';
+        document.getElementById('detail-author-name').innerText = art.author;
+        document.getElementById('detail-author-role').innerText = art.authorRole;
+        document.getElementById('detail-author-avatar').src = art.authorAvatar;
+        document.getElementById('detail-content').innerHTML = art.content;
+
+        // Populate Related (just show first 3 other articles for demo)
+        let relatedHtml = '';
+        appData.articles.filter(a => a.id !== id).slice(0, 3).forEach(relArt => {
+            relatedHtml += createCardHtml(relArt);
+        });
+        document.getElementById('detail-related').innerHTML = relatedHtml;
+
+        // Populate Popular in Detail
+        let popHtml = '';
+        appData.home.terpopuler.slice(0,3).forEach((item, idx) => {
+            popHtml += `
+                <div class="flex gap-3 py-3 dashed-divider items-start cursor-pointer">
+                    <span class="text-primary text-lg font-bold italic w-5 flex-shrink-0 mt-0.5">${idx + 1}</span>
+                    <h3 class="text-[14px] font-semibold text-gray-900 leading-snug">${item.title}</h3>
+                </div>`;
+        });
+        document.getElementById('detail-popular').innerHTML = popHtml;
+
+        // Switch View
+        views.home.classList.add('hidden');
+        views.detail.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function goHome() {
+        views.detail.classList.add('hidden');
+        views.home.classList.remove('hidden');
+        closeMenu();
+        window.scrollTo(0, 0);
+    }
+
+    // Menu Logic
+    function openMenu() {
+        ui.menuBackdrop.classList.remove('hidden');
+        // trigger reflow
+        void ui.menuBackdrop.offsetWidth;
+        ui.sideMenu.classList.remove('-translate-x-full');
+        ui.mainWrapper.classList.add('blur-[2px]'); // Slight blur on background
+        document.body.classList.add('no-scroll');
+    }
+    
+    function closeMenu() {
+        ui.sideMenu.classList.add('-translate-x-full');
+        ui.menuBackdrop.classList.add('hidden');
+        ui.mainWrapper.classList.remove('blur-[2px]');
+        document.body.classList.remove('no-scroll');
+    }
+
+    // Search Logic
+    function toggleSearch() {
+        if(ui.searchOverlay.classList.contains('-translate-y-full')) {
+            ui.searchOverlay.classList.remove('-translate-y-full');
+            ui.searchInput.focus();
+        } else {
+            ui.searchOverlay.classList.add('-translate-y-full');
+            ui.searchInput.value = '';
+            ui.searchResults.classList.add('hidden');
+        }
+    }
+
+    function handleSearch(e) {
+        const query = e.target.value.toLowerCase();
+        if(query.length < 2) {
+            ui.searchResults.classList.add('hidden');
+            return;
+        }
+        
+        const results = appData.articles.filter(a => a.title.toLowerCase().includes(query) || a.content.toLowerCase().includes(query));
+        
+        if(results.length > 0) {
+            let html = '<p class="text-xs text-gray-500 mb-2">Hasil pencarian:</p>';
+            results.forEach(res => {
+                html += `
+                    <div class="py-2 border-b border-gray-100 cursor-pointer hover:bg-gray-50" onclick="openArticle(${res.id}); toggleSearch();">
+                        <h4 class="text-sm font-semibold text-gray-800">${res.title}</h4>
+                        <span class="text-[10px] text-primary">${res.category}</span>
+                    </div>
+                `;
+            });
+            ui.searchResults.innerHTML = html;
+        } else {
+            ui.searchResults.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Tidak ada hasil ditemukan.</p>';
+        }
+        ui.searchResults.classList.remove('hidden');
+    }
+
+    // Setup Event Listeners
+    function setupEvents() {
+        ui.btnMenu.addEventListener('click', openMenu);
+        ui.btnCloseMenu.addEventListener('click', closeMenu);
+        ui.menuBackdrop.addEventListener('click', closeMenu); // Click anywhere outside to close
+        
+        ui.btnSearch.addEventListener('click', toggleSearch);
+        ui.btnCloseSearch.addEventListener('click', toggleSearch);
+        ui.searchInput.addEventListener('input', handleSearch);
+    }
+
+    // Boot App
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
